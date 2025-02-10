@@ -47,7 +47,6 @@ export default function DataTableRowActions({ row, onDelete }) {
       );
 
       if (response.status === 200) {
-        console.log('goods');
         onDelete(row.original.id);
       }
     } catch (err) {
@@ -59,11 +58,12 @@ export default function DataTableRowActions({ row, onDelete }) {
 
   const handleMark = async (e) => {
     e.preventDefault();
-    console.log(e.target.innerText);
+    console.log('row', row.original.name);
     try {
       const response = await axios.post(MARK_URL, {
         id: row.original.id,
         status: e.target.innerText,
+        name: row.original.name,
       });
 
       if (response.status === 200) {
