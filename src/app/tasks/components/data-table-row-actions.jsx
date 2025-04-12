@@ -20,12 +20,25 @@ import {
   DropdownMenuShortcut,
 } from '@/components/ui/dropdown-menu';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+
 import { labels } from '../data/data';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import axios from '../../../api/axios';
 const MARK_URL = 'request/mark/';
 const DELETE_URL = 'request/delete/';
+const SEND_MESSAGE_URL = 'message/send/';
 // import { taskSchema } from '../data/schema';
 
 // interface DataTableRowActionsProps<TData> {
@@ -34,8 +47,19 @@ const DELETE_URL = 'request/delete/';
 
 export default function DataTableRowActions({ row, onDelete }) {
   const [state, setState] = useState(false);
+  const [requests, setRequests] = useState([]);
+  const [modalOpen, setModalOpen] = useState(true);
   // const task = taskSchema.parse(row.original);
   const task = [];
+
+  const filteredRequests = requests.filter(
+    (req) => req._id === row.original.id
+  );
+
+  const currentUser = JSON.parse(
+    localStorage.getItem('currentUser')
+  )?.user;
+  const { _id, username } = currentUser;
 
   const handleDelete = async (e) => {
     e.preventDefault();
@@ -58,21 +82,52 @@ export default function DataTableRowActions({ row, onDelete }) {
 
   const handleMark = async (e) => {
     e.preventDefault();
-    console.log('row', row.original.name);
+    let s = 'Pending';
+
     try {
+      if (e.target.innerText == 'Processing') {
+        s = 'Processing';
+
+        const response = await axios.post(
+          `${SEND_MESSAGE_URL}${filteredRequests[0].userData._id}`,
+          {
+            text: 'Your request has been processed. Kindly check your email.',
+            senderId: _id,
+            senderModel: 'SuperAdmin',
+            receiverModel: 'User',
+          }
+        );
+
+        console.log(response.data);
+      }
       const response = await axios.post(MARK_URL, {
         id: row.original.id,
-        status: e.target.innerText,
-        name: row.original.name,
+        status: s,
+        modifiedBy: username,
       });
 
       if (response.status === 200) {
         onDelete(row.original.id);
+        location.reload();
       }
     } catch (err) {
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const response = await axios.get('request');
+        const data = response.data;
+        setRequests(data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchRequests();
+  }, []);
 
   return (
     <DropdownMenu>
@@ -95,14 +150,35 @@ export default function DataTableRowActions({ row, onDelete }) {
           <DropdownMenuSubContent>
             <DropdownMenuRadioGroup value={task.label}>
               {labels.map((label) => (
-                <DropdownMenuRadioItem
-                  key={label.value}
-                  value={label.value}
-                  onClick={handleMark}
-                  className="pl-2"
-                >
-                  {label.label}
-                </DropdownMenuRadioItem>
+                <AlertDialog key={label.value}>
+                  <DropdownMenuRadioItem
+                    key={label.value}
+                    value={label.value}
+                    onClick={handleMark}
+                    className="pl-2"
+                  >
+                    <AlertDialogTrigger>
+                      {label.label}
+                    </AlertDialogTrigger>
+                  </DropdownMenuRadioItem>
+                  {label.label == 'Processing' && (
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Processing Document...
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {`Hang tight! We're processing the document, patching the Word file, and updating the request status to 'Processing'. An email is on its way...`}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className={'hidden'}>
+                          Cancel
+                        </AlertDialogCancel>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  )}
+                </AlertDialog>
               ))}
             </DropdownMenuRadioGroup>
           </DropdownMenuSubContent>

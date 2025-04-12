@@ -19,10 +19,10 @@ export const labels = [
     value: 'Processing',
     label: 'Processing',
   },
-  {
-    value: 'Approved',
-    label: 'Approved',
-  },
+  // {
+  //   value: 'Approved',
+  //   label: 'Approved',
+  // },
 ];
 
 export const types = [
@@ -41,11 +41,7 @@ export const types = [
     label: 'Barangay Clearance',
     // icon: HelpCircle,
   },
-  {
-    value: 'Business Clearance',
-    label: 'Business Clearance',
-    // icon: HelpCircle,
-  },
+
   // {
   //   value: 'todo',
   //   label: 'Todo',

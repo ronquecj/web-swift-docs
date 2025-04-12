@@ -35,13 +35,11 @@ import {
 
 export function NavUser({ user, username }) {
   const name = user.username;
-  console.log(user);
   const nameSplit = name.split(' ');
   const initials = `${nameSplit[0].charAt(0).toUpperCase()}${
     nameSplit[1] ? nameSplit[1].charAt(0).toUpperCase() : ''
   }`;
   const role = user.isSuperAdmin ? 'Super Admin' : 'Admin';
-  console.log(role);
   const { isMobile } = useSidebar();
 
   const navigate = useNavigate();

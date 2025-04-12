@@ -1,7 +1,7 @@
 'use client';
 
 // import { Table } from '@tanstack/react-table';
-import { X } from 'lucide-react';
+import { X, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,8 +15,36 @@ import { DataTableFacetedFilter } from './data-table-faceted-filter';
 //   table: Table<TData>;
 // }
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+
+import axios from '../../../api/axios';
+const DELETE_ALL_REQUEST_URL = '/request/deleteall';
+
 export default function DataTableToolbar({ table }) {
   const isFiltered = table.getState().columnFilters.length > 0;
+
+  const deleteAllRequest = async () => {
+    try {
+      const response = await axios.delete(DELETE_ALL_REQUEST_URL);
+      const data = response.data;
+
+      if (response.status === 200) {
+        location.reload();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="flex items-center justify-between">
@@ -57,6 +85,29 @@ export default function DataTableToolbar({ table }) {
         )}
       </div>
       <DataTableViewOptions table={table} />
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="destructive" size="sm" className="ml-2">
+            <Trash2 />
+            Delete all
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently
+              delete all document requests.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={deleteAllRequest}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

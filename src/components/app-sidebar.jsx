@@ -56,13 +56,18 @@ const data = {
       isActive: true,
       items: [
         {
-          title: 'Record',
-          url: '#',
+          title: 'Request List',
+          url: '/dashboard',
         },
         {
-          title: 'Table List',
-          url: '#',
+          title: 'Request History',
+          url: '/history',
         },
+        {
+          title: 'Messages',
+          url: '/messages',
+        },
+
         // {
         //   title: 'Settings',
         //   url: '#',

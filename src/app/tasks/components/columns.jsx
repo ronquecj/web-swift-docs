@@ -197,8 +197,12 @@ export const columns = (onDelete) => [
 
   {
     id: 'actions',
-    cell: ({ row }) => (
-      <DataTableRowActions row={row} onDelete={onDelete} />
-    ),
+    cell: ({ row }) => {
+      return (
+        row.original.status != 'Approved' && (
+          <DataTableRowActions row={row} onDelete={onDelete} />
+        )
+      );
+    },
   },
 ];
